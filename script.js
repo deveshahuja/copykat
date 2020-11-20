@@ -1,17 +1,45 @@
-//import * as PIXI from "pixi.js";
 let app;
 var currSequence = [];
 var round = 1;
 var scores = [0, 0, 0];
-//var curr;
 var mute = false;
+var elem = document.documentElement;
+const canvas = document.getElementById("mycanvas");
+const fullBt = document.getElementById("fullscreen");
+const imgEl = document.querySelector("img");
+var full = false;
+fullBt.addEventListener("click", () => {
+	imgEl.classList.toggle("exit");
+	if (full) closeFullscreen();
+	else openFullscreen();
+	full = !full;
+});
 
+function openFullscreen() {
+	if (elem.requestFullscreen) {
+		elem.requestFullscreen();
+	} else if (elem.webkitRequestFullscreen) {
+		elem.webkitRequestFullscreen();
+	} else if (elem.msRequestFullscreen) {
+		elem.msRequestFullscreen();
+	}
+}
+
+function closeFullscreen() {
+	if (document.exitFullscreen) {
+		document.exitFullscreen();
+	} else if (document.webkitExitFullscreen) {
+		document.webkitExitFullscreen();
+	} else if (document.msExitFullscreen) {
+		document.msExitFullscreen();
+	}
+}
 window.onload = function () {
 	app = new PIXI.Application({
+		view: canvas,
 		height: 600,
 		width: 450,
 		backgroundColor: 0x222958,
-		//backgroundColor: 0xeeeeee,
 		antialias: true,
 	});
 	//0xd34180 red
@@ -494,6 +522,9 @@ function loadGame() {
 	var backTx = app.loader.resources.leftSlide.texture;
 	var optionBtn = new PIXI.Sprite(helpTx);
 
+	var timeLimit;
+	var checki;
+
 	optionBtn.anchor.set(0.5);
 	optionBtn.x = 40;
 	optionBtn.y = 25;
@@ -509,6 +540,7 @@ function loadGame() {
 			optionBtn.texture = backTx;
 			if (!mute) question.play();
 			helpContainer.visible = true;
+			//clearInterval(timeLimit);
 		} else {
 			optionBtn.texture = helpTx;
 			if (!mute) slide.play();
@@ -660,14 +692,12 @@ function loadGame() {
 	text.y = 140;
 	gameScreen.addChild(text);
 
-	var timeLimit;
-	var checki;
-
 	currSequence.push(Math.floor(1 + Math.random() * 4));
 
 	setRound();
 	function setRound() {
 		updateScore();
+		sum = scores.reduce((a, b) => a + b, 0);
 		sprite1.interactive = false;
 		sprite2.interactive = false;
 		sprite3.interactive = false;
@@ -698,27 +728,30 @@ function loadGame() {
 			optionBtn.buttonMode = true;
 			checki = 0;
 			timeLimit = setInterval(() => {
-				timeoutContainer.visible = true;
-				setTimeout(() => {
-					timeoutContainer.visible = false;
-					if (round < 3) {
-						round++;
-						setRound();
-					} else if (gameScreen.visible == true) {
-						overContainer.visible = true;
-						setTimeout(() => {
-							clearInterval(timeLimit);
-							loadScore();
-							console.log("game over");
-							scoreScreen.visible = true;
-							overContainer.visible = false;
-							gameScreen.visible = false;
-							timeoutContainer.visible = false;
-						}, 2000);
-					}
-				}, 2000);
+				if (helpContainer.visible == false) {
+					timeoutContainer.visible = true;
+					setTimeout(() => {
+						timeoutContainer.visible = false;
+						if (round < 3) {
+							if (helpContainer.visible == false && sum > 1) round++;
+							setRound();
+						} else if (gameScreen.visible == true) {
+							overContainer.visible = true;
+							setTimeout(() => {
+								clearInterval(timeLimit);
+								loadScore();
+								console.log("game over");
+								scoreScreen.visible = true;
+								overContainer.visible = false;
+								gameScreen.visible = false;
+								timeoutContainer.visible = false;
+							}, 2000);
+						}
+					}, 2000);
+				}
+
 				console.log("timeout");
-			}, 10000); //   currlen*1000
+			}, 10000); //
 		}, 1000 * currSequence.length + 500);
 	}
 
@@ -740,7 +773,7 @@ function loadGame() {
 			console.log("wrong");
 			if (!mute) wrong.play();
 			//wrong mask on
-			round++;
+			if (sum > 1) round++;
 			sprite1.interactive = false;
 			sprite2.interactive = false;
 			sprite3.interactive = false;

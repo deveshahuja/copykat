@@ -1,0 +1,26 @@
+.mycanvas {
+	/*width: calc(0.75 * current-height);*/
+}
+body {
+	background-color: black;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 0;
+}
+.fullscreen {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	text-decoration: none;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+	outline: none;
+}
+
+.exit {
+	content: url("assets/fullscreen_exit-white-48dp.svg");
+}
