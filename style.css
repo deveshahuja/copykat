@@ -1,5 +1,6 @@
 .mycanvas {
-	/*width: calc(0.75 * current-height);*/
+	min-width: calc(0.75 * current-height);
+	height: 100%;
 }
 body {
 	background-color: black;

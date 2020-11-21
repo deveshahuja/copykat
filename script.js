@@ -57,7 +57,6 @@ window.onload = function () {
 	readyScreen.visible = false;
 	introScreen.visible = true;
 	gameScreen.visible = false;
-	//loadScore();
 	scoreScreen.visible = false;
 
 	app.stage.addChild(introScreen);
@@ -86,22 +85,16 @@ window.onload = function () {
 		.add("unmuteCircle", "assets/volume_up-white-18dp.png");
 
 	app.loader.onProgress.add(showProgress);
-	app.loader.onComplete.add(doneLoading);
+	//app.loader.onComplete.add(doneLoading);
 	app.loader.onError.add(reportError);
 	app.loader.load();
 	function showProgress(e) {
 		//console.log(e.progress);
+		//loading screen
 	}
 	function reportError(e) {
 		//console.log(e.message);
 	}
-	function doneLoading(e) {
-		//loadScreen.visible = false;
-		//player = PIXI.Sprite.from(app.loader.resources.sourse_name1.texture);
-	}
-	//addEventListener pointerdown include game in div
-
-	//app.ticker.add(gameLoop);
 };
 
 function loadScore() {
@@ -139,7 +132,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.anchor.set(0.5);
 	title.x = app.screen.width / 2;
@@ -156,7 +149,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 25,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.anchor.set(0.5);
 	title.x = app.screen.width / 2;
@@ -174,7 +167,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.x = 50;
 	title.y = 360;
@@ -184,7 +177,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.x = 50;
 	title.y = 410;
@@ -194,7 +187,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.x = 50;
 	title.y = 460;
@@ -204,7 +197,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.x = 370;
 	title.y = 360;
@@ -214,7 +207,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.x = 370;
 	title.y = 410;
@@ -224,7 +217,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.x = 370;
 	title.y = 460;
@@ -240,7 +233,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 35,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.anchor.set(0.5);
 	title.x = app.screen.width / 2;
@@ -282,7 +275,7 @@ function loadScore() {
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 20,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.anchor.set(0.5);
 	title.x = app.screen.width / 2;
@@ -297,15 +290,11 @@ function loadScore() {
 		readyScreen.visible = false;
 		loadIntro();
 		introScreen.visible = true;
-		introScreen.visible = false;
 		gameScreen.visible = false;
 		scoreScreen.visible = false;
 		timeoutContainer.visible = false;
 		wrongContainer.visible = false;
 		overContainer.visible = false;
-		//clearInterval(timeLimit);
-		//clearInterval(id);
-		//add other screens
 	});
 
 	scoreScreen.addChild(cont);
@@ -325,12 +314,11 @@ function notifContainers() {
 	text.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 30,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	text.anchor.set(0.5);
 	text.x = app.screen.width / 2;
 	text.y = 350;
-	//interactive events off
 	timeoutContainer.addChild(box);
 	timeoutContainer.addChild(text);
 	timeoutContainer.visible = false;
@@ -348,7 +336,7 @@ function notifContainers() {
 	text.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 30,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 		wordWrap: true,
 		wordWrapWidth: 380,
 		align: "center",
@@ -356,10 +344,8 @@ function notifContainers() {
 	text.anchor.set(0.5);
 	text.x = app.screen.width / 2;
 	text.y = 350;
-	//interactive events off
 	wrongContainer.addChild(box);
 	wrongContainer.addChild(text);
-	//wrongContainer.visible=false;
 
 	//game over
 	overContainer = new PIXI.Container();
@@ -379,10 +365,8 @@ function notifContainers() {
 	text.anchor.set(0.5);
 	text.x = app.screen.width / 2;
 	text.y = 350;
-	//interactive events off
 	overContainer.addChild(box);
 	overContainer.addChild(text);
-	//overContainer.visible = false;
 
 	helpContainer = new PIXI.Container();
 
@@ -402,24 +386,12 @@ function notifContainers() {
 	rect.drawRoundedRect(app.screen.width / 2 - 170, 200, 340, 210, 15);
 	rect.endFill();
 	helpContainer.addChild(rect);
-	/*
-	let title = new PIXI.Text("CopyKat");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff", //also gradient
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = 25;
 
-	helpContainer.addChild(title);
-	*/
 	let title = new PIXI.Text("How To Play");
 	title.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 25,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	title.anchor.set(0.5);
 	title.x = app.screen.width / 2;
@@ -430,7 +402,7 @@ function notifContainers() {
 		fontFamily: "Arial",
 		fontSize: 30,
 		align: "center",
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 		wordWrap: true,
 		wordWrapWidth: 280,
 	});
@@ -445,7 +417,6 @@ function loadGame() {
 	const box3 = new PIXI.Graphics();
 	const box4 = new PIXI.Graphics();
 
-	//box1.lineStyle(2, 0xffffff);
 	box1.beginFill(0xd34180, 1);
 	box1.drawRoundedRect(0, 0, 180, 180, 16);
 	box1.endFill();
@@ -540,14 +511,11 @@ function loadGame() {
 			optionBtn.texture = backTx;
 			if (!mute) question.play();
 			helpContainer.visible = true;
-			//clearInterval(timeLimit);
 		} else {
 			optionBtn.texture = helpTx;
 			if (!mute) slide.play();
 			helpContainer.visible = false;
 		}
-
-		//stop timeout
 	});
 
 	let title = new PIXI.Text("CopyKat");
@@ -581,7 +549,6 @@ function loadGame() {
 		roundDisp.x = 80;
 		roundDisp.y = 75;
 		gameScreen.addChild(roundDisp);
-		//gameScreen.removeChild(title);
 
 		scoreDisp = new PIXI.Text("Score: " + sum);
 		scoreDisp.style = new PIXI.TextStyle({
@@ -596,8 +563,6 @@ function loadGame() {
 	}
 
 	gameScreen.addChild(sprite1, sprite2, sprite3, sprite4);
-
-	//////////////
 
 	let gr = new PIXI.Graphics();
 	gr.lineStyle(4, 0xffffff);
@@ -634,7 +599,7 @@ function loadGame() {
 	correctMask.visible = false;
 
 	var tickMask = new PIXI.Sprite.from(app.loader.resources.greenTick.texture);
-	//tickMask.scale *= 0.7;
+
 	tickMask.anchor.set(0.5);
 	gameScreen.addChild(tickMask);
 	tickMask.visible = false;
@@ -711,7 +676,7 @@ function loadGame() {
 
 		var id = setInterval(() => {
 			//currSequence.push(Math.floor(1 + Math.random() * 4));//only when correct
-			console.log("[" + cidx + "] " + currSequence[cidx]);
+			//console.log("[" + cidx + "] " + currSequence[cidx]);
 			highlight(highlightMask, currSequence[cidx++]);
 		}, 1000);
 		clearInterval(timeLimit);
@@ -728,8 +693,15 @@ function loadGame() {
 			optionBtn.buttonMode = true;
 			checki = 0;
 			timeLimit = setInterval(() => {
-				if (helpContainer.visible == false) {
-					timeoutContainer.visible = true;
+				if (
+					scoreScreen.visible == false &&
+					text.visible == false &&
+					helpContainer.visible == false
+				) {
+					if (round < 3) {
+						timeoutContainer.visible = true;
+						if (!mute) wrong.play();
+					}
 					setTimeout(() => {
 						timeoutContainer.visible = false;
 						if (round < 3) {
@@ -737,10 +709,11 @@ function loadGame() {
 							setRound();
 						} else if (gameScreen.visible == true) {
 							overContainer.visible = true;
+							if (!mute) wrong.play();
 							setTimeout(() => {
 								clearInterval(timeLimit);
 								loadScore();
-								console.log("game over");
+								//console.log("game over");
 								scoreScreen.visible = true;
 								overContainer.visible = false;
 								gameScreen.visible = false;
@@ -749,9 +722,8 @@ function loadGame() {
 						}
 					}, 2000);
 				}
-
-				console.log("timeout");
-			}, 10000); //
+				//console.log("timeout");
+			}, 15000); //
 		}, 1000 * currSequence.length + 500);
 	}
 
@@ -759,18 +731,15 @@ function loadGame() {
 		if (currSequence[checki++] === boxNo) {
 			if (currSequence.length === checki) {
 				scores[round - 1]++;
-				console.log("correct");
+				//console.log("correct");
 				currSequence.push(Math.floor(1 + Math.random() * 4));
 				//correct mask on
 				highlight(correctMask, boxNo);
 				highlight(tickMask, boxNo);
-				//clearInterval(timeLimit);
-				setRound(); //delay in between
-
-				//again with len++
+				setRound();
 			}
 		} else {
-			console.log("wrong");
+			//console.log("wrong");
 			if (!mute) wrong.play();
 			//wrong mask on
 			if (sum > 1) round++;
@@ -778,7 +747,6 @@ function loadGame() {
 			sprite2.interactive = false;
 			sprite3.interactive = false;
 			sprite4.interactive = false;
-			//clearTimeout(timeLimit);
 			if (round <= 3) {
 				wrongContainer.visible = true;
 				setTimeout(() => {
@@ -790,7 +758,7 @@ function loadGame() {
 				setTimeout(() => {
 					loadScore();
 					clearInterval(timeLimit);
-					console.log("wrong over");
+					//console.log("wrong over");
 					scoreScreen.visible = true;
 					overContainer.visible = false;
 					timeoutContainer.visible = false;
@@ -799,7 +767,7 @@ function loadGame() {
 			}
 		}
 		highlight(highlightMask, boxNo);
-		console.log("sprite" + boxNo);
+		//console.log("sprite" + boxNo);
 	}
 	//use score+1
 	sprite1.on("pointertap", () => {
@@ -1065,7 +1033,9 @@ function readySetGo() {
 				setTimeout(() => {
 					clearInterval(id);
 					readyScreen.visible = false;
+					go.visible = false;
 					gameScreen.visible = true;
+					circle.visible = false;
 					loadGame();
 				}, duration + 230);
 			}, duration);
