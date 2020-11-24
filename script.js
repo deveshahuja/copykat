@@ -34,6 +34,130 @@ function closeFullscreen() {
 		document.msExitFullscreen();
 	}
 }
+class Components {
+	constructor() {
+		this.rect = new PIXI.Graphics();
+		this.title = new PIXI.Text("CopyKat");
+		this.help = new PIXI.Container();
+	}
+	get header() {
+		this.rect.beginFill(0x0f1226);
+		this.rect.drawRect(0, 0, app.screen.width, 50);
+		this.rect.endFill();
+		this.title.style = new PIXI.TextStyle({
+			fontFamily: "Arial",
+			fontSize: 20,
+			fill: "#ffffff",
+		});
+		this.title.anchor.set(0.5);
+		this.title.x = app.screen.width / 2;
+		this.title.y = 25;
+		return [this.rect, this.title];
+	}
+	get howTo() {
+		let rect = new PIXI.Graphics();
+		rect.beginFill(0x222958);
+		rect.drawRect(0, 50, app.screen.width, 550);
+		rect.endFill();
+		this.help.addChild(rect);
+
+		rect = new PIXI.Graphics();
+		rect.beginFill(0x3b4686);
+		rect.drawRoundedRect(app.screen.width / 2 - 100, 100, 200, 50, 10);
+		rect.endFill();
+		this.help.addChild(rect);
+		rect = new PIXI.Graphics();
+		rect.beginFill(0x3b4686);
+		rect.drawRoundedRect(app.screen.width / 2 - 170, 200, 340, 210, 15);
+		rect.endFill();
+		this.help.addChild(rect);
+
+		let title = new PIXI.Text("How To Play");
+		title.style = new PIXI.TextStyle({
+			fontFamily: "Arial",
+			fontSize: 25,
+			fill: "#ffffff",
+		});
+		title.anchor.set(0.5);
+		title.x = app.screen.width / 2;
+		title.y = 125;
+		this.help.addChild(title);
+		title = new PIXI.Text("Remember and repeat the sequence of color.");
+		title.style = new PIXI.TextStyle({
+			fontFamily: "Arial",
+			fontSize: 30,
+			align: "center",
+			fill: "#ffffff",
+			wordWrap: true,
+			wordWrapWidth: 280,
+		});
+		title.anchor.set(0.5);
+		title.x = app.screen.width / 2;
+		title.y = app.screen.height / 2;
+		this.help.addChild(title);
+		return this.help;
+	}
+}
+var component = new Components();
+class BoxSprite {
+	constructor(color, position) {
+		let box = new PIXI.Graphics();
+		box.beginFill(color, 1);
+		box.drawRoundedRect(0, 0, 180, 180, 16);
+		box.endFill();
+		box.beginFill(0xffffff, 0.25);
+		box.drawRoundedRect(10, 8, 160, 40, 20);
+		box.endFill();
+		let texture = app.renderer.generateTexture(box);
+		this.sprite = new PIXI.Sprite(texture);
+		this.sprite.anchor.set(0.5);
+
+		switch (position) {
+			case 1:
+				this.sprite.x = 125;
+				this.sprite.y = 280;
+				break;
+			case 2:
+				this.sprite.x = 325;
+				this.sprite.y = 280;
+				break;
+			case 3:
+				this.sprite.x = 125;
+				this.sprite.y = 480;
+				break;
+			case 4:
+				this.sprite.x = 325;
+				this.sprite.y = 480;
+				break;
+		}
+	}
+	get colorSprite() {
+		return this.sprite;
+	}
+}
+class ScoreTitles {
+	constructor(roundNo) {
+		this.roundTitle = new PIXI.Text("Round " + roundNo);
+		this.roundTitle.style = new PIXI.TextStyle({
+			fontFamily: "Arial",
+			fontSize: 20,
+			fill: "#ffffff",
+		});
+		this.roundTitle.x = 50;
+		this.roundTitle.y = 360 + (roundNo - 1) * 50;
+		this.scoreTitle = new PIXI.Text(scores[roundNo - 1]);
+		this.scoreTitle.style = new PIXI.TextStyle({
+			fontFamily: "Arial",
+			fontSize: 20,
+			fill: "#ffffff",
+		});
+		this.scoreTitle.x = 370;
+		this.scoreTitle.y = 360 + (roundNo - 1) * 50;
+	}
+	get line() {
+		return [this.roundTitle, this.scoreTitle];
+	}
+}
 window.onload = function () {
 	app = new PIXI.Application({
 		view: canvas,
@@ -42,10 +166,6 @@ window.onload = function () {
 		backgroundColor: 0x222958,
 		antialias: true,
 	});
-	//0xd34180 red
-	//#e2c20a yellow
-	//#1ace74 green
-	//#1ab2d0 blue
 	document.body.appendChild(app.view);
 	app.stage.interactive = true;
 
@@ -67,13 +187,11 @@ window.onload = function () {
 	timeoutContainer.visible = false;
 	wrongContainer.visible = false;
 	overContainer.visible = false;
-	helpContainer.visible = false;
+	//helpContainer.visible = false;
 	app.stage.addChild(timeoutContainer);
 	app.stage.addChild(wrongContainer);
 	app.stage.addChild(overContainer);
-	app.stage.addChild(helpContainer);
-
-	loadIntro();
+	//app.stage.addChild(helpContainer);
 
 	app.loader.baseURL = "assets";
 	app.loader
@@ -85,22 +203,24 @@ window.onload = function () {
 		.add("unmuteCircle", "assets/volume_up-white-18dp.png");
 
 	app.loader.onProgress.add(showProgress);
-	//app.loader.onComplete.add(doneLoading);
+	app.loader.onComplete.add(doneLoading);
 	app.loader.onError.add(reportError);
 	app.loader.load();
+	loadIntro();
 	function showProgress(e) {
 		//console.log(e.progress);
-		//loading screen
+		//loading screen add slider
 	}
 	function reportError(e) {
+		//console.log(e.message);
+	}
+	function doneLoading(e) {
 		//console.log(e.message);
 	}
 };
 
 function loadScore() {
 	let sum = scores.reduce((a, b) => a + b, 0);
-
-	//highlight 191e41
 	let highScore = Math.max(...scores);
 	let highidx =
 		scores.findIndex((s) => {
@@ -112,32 +232,16 @@ function loadScore() {
 	if (highidx === 2) highY = 400;
 	if (highidx === 3) highY = 450;
 
-	var backRotate = new PIXI.Sprite.from(
-		app.loader.resources.starBackground.texture
-	);
+	var backRotate = new PIXI.Sprite.from(app.loader.resources.starBackground.texture);
 	backRotate.anchor.set(0.5);
 	backRotate.x = app.screen.width / 2;
 	backRotate.y = 150;
-
 	scoreScreen.addChild(backRotate);
 	app.ticker.add(() => {
 		backRotate.rotation += 0.01;
 	});
-	let rect = new PIXI.Graphics();
-	rect.beginFill(0x0f1226);
-	rect.drawRect(0, 0, app.screen.width, 50);
-	rect.endFill();
-	scoreScreen.addChild(rect);
-	let title = new PIXI.Text("CopyKat");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff",
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = 25;
-	scoreScreen.addChild(title);
+
+	scoreScreen.addChild(...component.header);
 
 	//353c66
 	rect = new PIXI.Graphics();
@@ -163,65 +267,12 @@ function loadScore() {
 	rect.endFill();
 	scoreScreen.addChild(rect);
 
-	title = new PIXI.Text("Round 1");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff",
-	});
-	title.x = 50;
-	title.y = 360;
-	scoreScreen.addChild(title);
-
-	title = new PIXI.Text("Round 2");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff",
-	});
-	title.x = 50;
-	title.y = 410;
-	scoreScreen.addChild(title);
-
-	title = new PIXI.Text("Round 3");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff",
-	});
-	title.x = 50;
-	title.y = 460;
-	scoreScreen.addChild(title);
-
-	title = new PIXI.Text(scores[0]);
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff",
-	});
-	title.x = 370;
-	title.y = 360;
-	scoreScreen.addChild(title);
-
-	title = new PIXI.Text(scores[1]);
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff",
-	});
-	title.x = 370;
-	title.y = 410;
-	scoreScreen.addChild(title);
-
-	title = new PIXI.Text(scores[2]);
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff",
-	});
-	title.x = 370;
-	title.y = 460;
-	scoreScreen.addChild(title);
+	let scoreLine = new ScoreTitles(1);
+	scoreScreen.addChild(...scoreLine.line);
+	scoreLine = new ScoreTitles(2);
+	scoreScreen.addChild(...scoreLine.line);
+	scoreLine = new ScoreTitles(3);
+	scoreScreen.addChild(...scoreLine.line);
 
 	//mid
 	star = new PIXI.Graphics();
@@ -288,8 +339,8 @@ function loadScore() {
 		scores = [0, 0, 0];
 		if (!mute) clickBt.play();
 		readyScreen.visible = false;
-		loadIntro();
 		introScreen.visible = true;
+		loadIntro();
 		gameScreen.visible = false;
 		scoreScreen.visible = false;
 		timeoutContainer.visible = false;
@@ -300,7 +351,6 @@ function loadScore() {
 	scoreScreen.addChild(cont);
 	scoreScreen.addChild(title);
 }
-
 function notifContainers() {
 	timeoutContainer = new PIXI.Container();
 	let box = new PIXI.Graphics();
@@ -360,114 +410,32 @@ function notifContainers() {
 	text.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
 		fontSize: 35,
-		fill: "#ffffff", //also gradient
+		fill: "#ffffff",
 	});
 	text.anchor.set(0.5);
 	text.x = app.screen.width / 2;
 	text.y = 350;
 	overContainer.addChild(box);
 	overContainer.addChild(text);
-
-	helpContainer = new PIXI.Container();
-
-	let rect = new PIXI.Graphics();
-	rect.beginFill(0x222958);
-	rect.drawRect(0, 50, app.screen.width, 550);
-	rect.endFill();
-	helpContainer.addChild(rect);
-
-	rect = new PIXI.Graphics();
-	rect.beginFill(0x3b4686);
-	rect.drawRoundedRect(app.screen.width / 2 - 100, 100, 200, 50, 10);
-	rect.endFill();
-	helpContainer.addChild(rect);
-	rect = new PIXI.Graphics();
-	rect.beginFill(0x3b4686);
-	rect.drawRoundedRect(app.screen.width / 2 - 170, 200, 340, 210, 15);
-	rect.endFill();
-	helpContainer.addChild(rect);
-
-	let title = new PIXI.Text("How To Play");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 25,
-		fill: "#ffffff",
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = 125;
-	helpContainer.addChild(title);
-	title = new PIXI.Text("Remember and repeat the sequence of color.");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 30,
-		align: "center",
-		fill: "#ffffff",
-		wordWrap: true,
-		wordWrapWidth: 280,
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = app.screen.height / 2;
-	helpContainer.addChild(title);
 }
 function loadGame() {
-	const box1 = new PIXI.Graphics();
-	const box2 = new PIXI.Graphics();
-	const box3 = new PIXI.Graphics();
-	const box4 = new PIXI.Graphics();
+	gameScreen.addChild(...component.header);
 
-	box1.beginFill(0xd34180, 1);
-	box1.drawRoundedRect(0, 0, 180, 180, 16);
-	box1.endFill();
-	box1.beginFill(0xffffff, 0.25);
-	box1.drawRoundedRect(10, 8, 160, 40, 20);
-	box1.endFill();
-	var texture = app.renderer.generateTexture(box1);
-	var sprite1 = new PIXI.Sprite(texture);
-
-	box2.beginFill(0xe2c20a, 1);
-	box2.drawRoundedRect(0, 0, 180, 180, 16);
-	box2.endFill();
-	box2.beginFill(0xffffff, 0.25);
-	box2.drawRoundedRect(10, 8, 160, 40, 20);
-	box2.endFill();
-	var texture = app.renderer.generateTexture(box2);
-	var sprite2 = new PIXI.Sprite(texture);
-
-	box3.beginFill(0x1ace74, 1);
-	box3.drawRoundedRect(0, 0, 180, 180, 16);
-	box3.endFill();
-	box3.beginFill(0xffffff, 0.25);
-	box3.drawRoundedRect(10, 8, 160, 40, 20);
-	box3.endFill();
-	var texture = app.renderer.generateTexture(box3);
-	var sprite3 = new PIXI.Sprite(texture);
-
-	box4.beginFill(0x1ab2d0, 1);
-	box4.drawRoundedRect(0, 0, 180, 180, 16);
-	box4.endFill();
-	box4.beginFill(0xffffff, 0.25);
-	box4.drawRoundedRect(10, 8, 160, 40, 20);
-	box4.endFill();
-	var texture = app.renderer.generateTexture(box4);
-	var sprite4 = new PIXI.Sprite(texture);
-
-	sprite1.anchor.set(0.5);
-	sprite2.anchor.set(0.5);
-	sprite3.anchor.set(0.5);
-	sprite4.anchor.set(0.5);
-
-	sprite1.y = sprite2.y = 280;
-	sprite3.y = sprite4.y = 480;
-	sprite1.x = sprite3.x = 125;
-	sprite2.x = sprite4.x = 325;
-
-	let rect = new PIXI.Graphics();
-	rect.beginFill(0x0f1226);
-	rect.drawRect(0, 0, app.screen.width, 50);
-	rect.endFill();
-	gameScreen.addChild(rect);
+	var sp = new BoxSprite(0xd34180, 1);
+	var sprite1 = sp.colorSprite;
+	var sp = new BoxSprite(0xe2c20a, 2);
+	var sprite2 = sp.colorSprite;
+	var sp = new BoxSprite(0x1ace74, 3);
+	var sprite3 = sp.colorSprite;
+	var sp = new BoxSprite(0x1ab2d0, 4);
+	var sprite4 = sp.colorSprite;
+	gameScreen.addChild(sprite1, sprite2, sprite3, sprite4);
+	function interactions(state) {
+		sprite1.interactive = state;
+		sprite2.interactive = state;
+		sprite3.interactive = state;
+		sprite4.interactive = state;
+	}
 
 	var muteTx = app.loader.resources.muteCircle.texture;
 	var unmuteTx = app.loader.resources.unmuteCircle.texture;
@@ -499,8 +467,12 @@ function loadGame() {
 	optionBtn.anchor.set(0.5);
 	optionBtn.x = 40;
 	optionBtn.y = 25;
-	optionBtn.interactive = true;
-	optionBtn.buttonMode = true;
+	function optionActive(state) {
+		optionBtn.alpha = state ? 1 : 0.5;
+		optionBtn.interactive = state;
+		optionBtn.buttonMode = state;
+	}
+	optionActive(true);
 	bol = false;
 	gameScreen.addChild(optionBtn);
 	var question = new Audio("sounds/question.mp3");
@@ -511,58 +483,49 @@ function loadGame() {
 			optionBtn.texture = backTx;
 			if (!mute) question.play();
 			helpContainer.visible = true;
+			scooreBoard.visible = false;
+			interactions(false);
 		} else {
 			optionBtn.texture = helpTx;
 			if (!mute) slide.play();
 			helpContainer.visible = false;
+			scooreBoard.visible = true;
+			interactions(true);
 		}
 	});
-
-	let title = new PIXI.Text("CopyKat");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff", //also gradient
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = 25;
-	gameScreen.addChild(title);
-
+	let scooreBoard = new PIXI.Container();
 	updateScore();
 	function updateScore() {
-		//round scoreboard 353c66
 		let sum = scores.reduce((a, b) => a + b, 0);
 		rect = new PIXI.Graphics();
 		rect.beginFill(0x353c66);
 		rect.drawRect(0, 50, app.screen.width, 50);
 		rect.endFill();
-		gameScreen.addChild(rect);
+		scooreBoard.addChild(rect);
 		roundDisp = new PIXI.Text("Round: " + round + "/3");
 		roundDisp.style = new PIXI.TextStyle({
 			fontFamily: "Arial",
 			fontSize: 20,
-			fill: "#ffffff", //also gradient
+			fill: "#ffffff",
 			align: "left",
 		});
 		roundDisp.anchor.set(0.5);
 		roundDisp.x = 80;
 		roundDisp.y = 75;
-		gameScreen.addChild(roundDisp);
+		scooreBoard.addChild(roundDisp);
 
 		scoreDisp = new PIXI.Text("Score: " + sum);
 		scoreDisp.style = new PIXI.TextStyle({
 			fontFamily: "Arial",
 			fontSize: 20,
-			fill: "#ffffff", //also gradient
+			fill: "#ffffff",
 		});
 		scoreDisp.anchor.set(0.5);
 		scoreDisp.x = 380;
 		scoreDisp.y = 75;
-		gameScreen.addChild(scoreDisp);
+		scooreBoard.addChild(scoreDisp);
+		gameScreen.addChild(scooreBoard);
 	}
-
-	gameScreen.addChild(sprite1, sprite2, sprite3, sprite4);
 
 	let gr = new PIXI.Graphics();
 	gr.lineStyle(4, 0xffffff);
@@ -570,18 +533,7 @@ function loadGame() {
 	gr.drawRoundedRect(0, 0, 180, 180, 16);
 	gr.endFill();
 	var texture = app.renderer.generateTexture(gr);
-	/*
-	//gradient import canvas 2d
-	var c = document.getElementById("myCanvas");
-	var ctx = c.getContext("2d");
-	var grd = ctx.createRadialGradient(0, 0, 5, 0, 0, 100);
-	grd.addColorStop(0, "red");
-	grd.addColorStop(1, "white");
-	// Fill with gradient
-	ctx.fillStyle = grd;
-	ctx.fillRect(0, 0, 150, 100);
-	var texture = new PIXI.Texture.from(c);
-	*/
+
 	var highlightMask = new PIXI.Sprite(texture);
 	highlightMask.anchor.set(0.5);
 	gameScreen.addChild(highlightMask);
@@ -603,6 +555,11 @@ function loadGame() {
 	tickMask.anchor.set(0.5);
 	gameScreen.addChild(tickMask);
 	tickMask.visible = false;
+
+	var helpContainer = component.howTo;
+	gameScreen.addChild(helpContainer);
+	helpContainer.visible = false;
+
 	var beep1 = new Audio("sounds/beep1.mp3");
 	var beep2 = new Audio("sounds/beep2.mp3");
 	var beep3 = new Audio("sounds/beep3.mp3");
@@ -632,15 +589,6 @@ function loadGame() {
 				break;
 		}
 		mask.visible = true;
-		/*
-		mask.alpha = 0;
-		let fadeId = setInterval(() => {
-			mask.plpha += 0.05;
-		}, 10);
-		setTimeout(() => {
-			clearInterval(fadeId);
-		}, 200);
-		*/
 		setTimeout(() => {
 			mask.visible = false;
 		}, 500);
@@ -663,20 +611,12 @@ function loadGame() {
 	function setRound() {
 		updateScore();
 		sum = scores.reduce((a, b) => a + b, 0);
-		sprite1.interactive = false;
-		sprite2.interactive = false;
-		sprite3.interactive = false;
-		sprite4.interactive = false;
+		interactions(false);
 		text.visible = true;
-		//timeoutContainer.visible = false;
-		optionBtn.alpha = 0.5;
-		optionBtn.interactive = false;
-		optionBtn.buttonMode = false;
+		optionActive(false);
 		let cidx = 0;
 
 		var id = setInterval(() => {
-			//currSequence.push(Math.floor(1 + Math.random() * 4));//only when correct
-			//console.log("[" + cidx + "] " + currSequence[cidx]);
 			highlight(highlightMask, currSequence[cidx++]);
 		}, 1000);
 		clearInterval(timeLimit);
@@ -684,26 +624,19 @@ function loadGame() {
 			//input time
 			clearInterval(id);
 			text.visible = false;
-			sprite1.interactive = true;
-			sprite2.interactive = true;
-			sprite3.interactive = true;
-			sprite4.interactive = true;
-			optionBtn.alpha = 1;
-			optionBtn.interactive = true;
-			optionBtn.buttonMode = true;
+			interactions(true);
+			optionActive(true);
 			checki = 0;
 			timeLimit = setInterval(() => {
-				if (
-					scoreScreen.visible == false &&
-					text.visible == false &&
-					helpContainer.visible == false
-				) {
+				if (scoreScreen.visible == false && text.visible == false && helpContainer.visible == false) {
 					if (round < 3) {
 						timeoutContainer.visible = true;
+						optionActive(false);
 						if (!mute) wrong.play();
 					}
 					setTimeout(() => {
 						timeoutContainer.visible = false;
+						optionActive(true);
 						if (round < 3) {
 							if (helpContainer.visible == false && sum > 1) round++;
 							setRound();
@@ -723,7 +656,7 @@ function loadGame() {
 					}, 2000);
 				}
 				//console.log("timeout");
-			}, 15000); //
+			}, 15000); //15sec
 		}, 1000 * currSequence.length + 500);
 	}
 
@@ -743,14 +676,13 @@ function loadGame() {
 			if (!mute) wrong.play();
 			//wrong mask on
 			if (sum > 1) round++;
-			sprite1.interactive = false;
-			sprite2.interactive = false;
-			sprite3.interactive = false;
-			sprite4.interactive = false;
+			interactions(false);
+			optionActive(false);
 			if (round <= 3) {
 				wrongContainer.visible = true;
 				setTimeout(() => {
 					wrongContainer.visible = false;
+					optionActive(true);
 					setRound();
 				}, 2000);
 			} else {
@@ -760,6 +692,7 @@ function loadGame() {
 					clearInterval(timeLimit);
 					//console.log("wrong over");
 					scoreScreen.visible = true;
+					optionActive(true);
 					overContainer.visible = false;
 					timeoutContainer.visible = false;
 					gameScreen.visible = false;
@@ -769,7 +702,6 @@ function loadGame() {
 		highlight(highlightMask, boxNo);
 		//console.log("sprite" + boxNo);
 	}
-	//use score+1
 	sprite1.on("pointertap", () => {
 		boxClick(1);
 	});
@@ -785,62 +717,14 @@ function loadGame() {
 }
 
 function loadIntro() {
+	var component = new Components();
+	introScreen.addChild(...component.header);
+	introScreen.addChild(component.howTo);
+
 	let rect = new PIXI.Graphics();
-	rect.beginFill(0x0f1226);
-	rect.drawRect(0, 0, app.screen.width, 50);
-	rect.endFill();
-	introScreen.addChild(rect);
-	rect = new PIXI.Graphics();
-	rect.beginFill(0x3b4686);
-	rect.drawRoundedRect(app.screen.width / 2 - 100, 100, 200, 50, 10);
-	rect.endFill();
-	introScreen.addChild(rect);
-	rect = new PIXI.Graphics();
-	rect.beginFill(0x3b4686);
-	rect.drawRoundedRect(app.screen.width / 2 - 170, 200, 340, 210, 15);
-	rect.endFill();
-	introScreen.addChild(rect);
-
-	let title = new PIXI.Text("CopyKat");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff", //also gradient
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = 25;
-
-	introScreen.addChild(title);
-	title = new PIXI.Text("How To Play");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 25,
-		fill: "#ffffff", //also gradient
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = 125;
-	introScreen.addChild(title);
-	title = new PIXI.Text("Remember and repeat the sequence of color.");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 30,
-		align: "center",
-		fill: "#ffffff", //also gradient
-		wordWrap: true,
-		wordWrapWidth: 280,
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = app.screen.height / 2;
-	introScreen.addChild(title);
-
-	rect = new PIXI.Graphics();
 	rect.beginFill(0xe0e3ed);
 	rect.drawRoundedRect(0, 0, 150, 60, 15);
 	rect.endFill();
-
 	const texture = app.renderer.generateTexture(rect);
 	const start = new PIXI.Sprite(texture);
 	start.anchor.set(0.5);
@@ -861,19 +745,10 @@ function loadIntro() {
 	title.x = app.screen.width / 2;
 	title.y = 500;
 	introScreen.addChild(title);
-	/*
-	start.on("click", () => {
-		introScreen.visible = false;
-		readyScreen.visible = true;
-		readySetGo();
-	});
-	*/
 
-	//var clickBt = new Audio("sounds/clickBt.mp3");
 	start.on("pointertap", () => {
 		introScreen.visible = false;
 		readyScreen.visible = true;
-		//if (!mute) clickBt.play();
 		readySetGo();
 	});
 
@@ -890,24 +765,8 @@ function loadIntro() {
 		title.scale.y /= 1.1;
 	});
 }
-
 function readySetGo() {
-	let rect = new PIXI.Graphics();
-	rect.beginFill(0x0f1226);
-	rect.drawRect(0, 0, app.screen.width, 50);
-	rect.endFill();
-	readyScreen.addChild(rect);
-	let title = new PIXI.Text("CopyKat");
-	title.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 20,
-		fill: "#ffffff", //also gradient
-	});
-	title.anchor.set(0.5);
-	title.x = app.screen.width / 2;
-	title.y = 25;
-	readyScreen.addChild(title);
-	//sound
+	readyScreen.addChild(...component.header);
 
 	let circle = new PIXI.Graphics();
 	circle.lineStyle(5, 0xffffff, 1);
@@ -916,72 +775,19 @@ function readySetGo() {
 	circle.endFill();
 	circle.x = app.screen.width / 2;
 	circle.y = app.screen.height / 2;
-	circle.scale.x *= 0.1;
-	circle.scale.y *= 0.1;
 	readyScreen.addChild(circle);
 
-	let three = new PIXI.Text(3);
-	three.style = new PIXI.TextStyle({
+	let currText = new PIXI.Text(3);
+	currText.style = new PIXI.TextStyle({
 		fontFamily: "Arial",
-		fontSize: 60,
+		fontSize: 55,
 		fill: "#ffffff",
 		fontWeight: "bolder",
 	});
-	three.anchor.set(0.5);
-	three.x = app.screen.width / 2;
-	three.y = app.screen.height / 2;
-	three.scale.x *= 0.1;
-	three.scale.y *= 0.1;
-	//one.rotation += 10;
-	readyScreen.addChild(three);
-
-	let two = new PIXI.Text(2);
-	two.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 60,
-		fill: "#ffffff",
-		fontWeight: "bolder",
-	});
-	two.anchor.set(0.5);
-	two.x = app.screen.width / 2;
-	two.y = app.screen.height / 2;
-	two.scale.x *= 0.1;
-	two.scale.y *= 0.1;
-	//one.rotation += 10;
-	readyScreen.addChild(two);
-	two.visible = false;
-
-	let one = new PIXI.Text(1);
-	one.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 60,
-		fill: "#ffffff",
-		fontWeight: "bolder",
-	});
-	one.anchor.set(0.5);
-	one.x = app.screen.width / 2;
-	one.y = app.screen.height / 2;
-	one.scale.x *= 0.1;
-	one.scale.y *= 0.1;
-	//one.rotation += 10;
-	readyScreen.addChild(one);
-	one.visible = false;
-
-	let go = new PIXI.Text("GO");
-	go.style = new PIXI.TextStyle({
-		fontFamily: "Arial",
-		fontSize: 50,
-		fill: "#ffffff",
-		fontWeight: "bolder",
-	});
-	go.anchor.set(0.5);
-	go.x = app.screen.width / 2;
-	go.y = app.screen.height / 2;
-	go.scale.x *= 0.1;
-	go.scale.y *= 0.1;
-	//one.rotation += 10;
-	readyScreen.addChild(go);
-	go.visible = false;
+	currText.anchor.set(0.5);
+	currText.x = app.screen.width / 2;
+	currText.y = app.screen.height / 2;
+	readyScreen.addChild(currText);
 
 	let inc = 10;
 	let duration = 900;
@@ -989,51 +795,50 @@ function readySetGo() {
 	let id = setInterval(() => {
 		circle.scale.x *= scale;
 		circle.scale.y *= scale;
-		three.scale.x *= scale;
-		three.scale.y *= scale;
+		currText.scale.x *= scale;
+		currText.scale.y *= scale;
 	}, inc);
 	var ready = new Audio("sounds/readysetgo.mp3");
 	ready.play();
-	setTimeout(() => {
-		clearInterval(id);
-		three.visible = false;
-		two.visible = true;
+	function setScale(scale) {
+		circle.scale.x *= scale;
+		circle.scale.y *= scale;
+		currText.scale.x *= scale;
+		currText.scale.y *= scale;
+	}
+	function baseScale() {
+		currText.scale.x = 0.1;
+		currText.scale.y = 0.1;
 		circle.scale.x = 0.1;
 		circle.scale.y = 0.1;
+	}
+	baseScale();
+	setTimeout(() => {
+		clearInterval(id);
+
+		currText.text = "2";
+		baseScale();
 		id = setInterval(() => {
-			circle.scale.x *= scale;
-			circle.scale.y *= scale;
-			two.scale.x *= scale;
-			two.scale.y *= scale;
+			setScale(scale);
 		}, inc);
 		setTimeout(() => {
 			clearInterval(id);
-			two.visible = false;
-			one.visible = true;
-			circle.scale.x = 0.1;
-			circle.scale.y = 0.1;
+			currText.text = "1";
+			baseScale();
 			id = setInterval(() => {
-				circle.scale.x *= scale;
-				circle.scale.y *= scale;
-				one.scale.x *= scale;
-				one.scale.y *= scale;
+				setScale(scale);
 			}, inc);
 			setTimeout(() => {
 				clearInterval(id);
-				one.visible = false;
-				go.visible = true;
-				circle.scale.x = 0.1;
-				circle.scale.y = 0.1;
+				currText.text = "GO";
+				baseScale();
 				id = setInterval(() => {
-					circle.scale.x *= 1.023;
-					circle.scale.y *= 1.023;
-					go.scale.x *= 1.023;
-					go.scale.y *= 1.023;
+					setScale(1.023);
 				}, inc);
 				setTimeout(() => {
 					clearInterval(id);
 					readyScreen.visible = false;
-					go.visible = false;
+					currText.visible = false;
 					gameScreen.visible = true;
 					circle.visible = false;
 					loadGame();
